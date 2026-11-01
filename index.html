@@ -22,6 +22,7 @@
             --c-pink: #ff0050;
             --c-purple: #8b5cf6;
             --c-emerald: #10b981;
+            --viber-purple: #7360f2;
         }
 
         * {
@@ -156,7 +157,7 @@
             margin-bottom: 1.2rem;
         }
 
-        .owner-badge, .phone-badge {
+        .owner-badge, .phone-badge, .viber-header-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -182,7 +183,17 @@
         .phone-badge:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 25px rgba(16, 185, 129, 0.3);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(0, 242, 254, 0.2));
+        }
+
+        .viber-header-badge {
+            background: linear-gradient(135deg, rgba(115, 96, 242, 0.2), rgba(139, 92, 246, 0.15));
+            border-color: rgba(115, 96, 242, 0.35);
+            color: #a78bfa;
+        }
+
+        .viber-header-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(115, 96, 242, 0.35);
         }
 
         .main-title {
@@ -667,7 +678,29 @@
         .modal-actions {
             display: flex;
             flex-direction: column;
+            gap: 12px;
+        }
+
+        .viber-send-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #7360f2 0%, #5b46e0 100%);
+            border: none;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
+            box-shadow: 0 6px 25px rgba(115, 96, 242, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .viber-send-btn:hover {
+            transform: translateY(-2px);
         }
 
         .direct-call-btn {
@@ -784,6 +817,10 @@
                     <i class="fa-brands fa-tiktok" style="color: var(--c-cyan);"></i>
                     <span>Владелец: Кириченко Юлия</span>
                 </div>
+                <a href="viber://chat?number=%2B375296372405" class="viber-header-badge">
+                    <i class="fa-brands fa-viber"></i>
+                    <span>Написать в Viber</span>
+                </a>
                 <a href="tel:+375296372405" class="phone-badge">
                     <i class="fa-solid fa-phone-volume"></i>
                     <span>+375 (29) 637-24-05</span>
@@ -848,6 +885,11 @@
             </div>
 
             <div class="modal-actions">
+                <button class="viber-send-btn" id="sendViberBtn">
+                    <i class="fa-brands fa-viber"></i>
+                    <span>Заказать через Viber</span>
+                </button>
+
                 <a href="tel:+375296372405" class="direct-call-btn">
                     <i class="fa-solid fa-phone"></i>
                     <span>Позвонить Юлии (+375 29 637-24-05)</span>
@@ -939,6 +981,7 @@
         const modalCartList = document.getElementById('modalCartList');
         const modalTotalPrice = document.getElementById('modalTotalPrice');
         const sendOrderBtn = document.getElementById('sendOrderBtn');
+        const sendViberBtn = document.getElementById('sendViberBtn');
         const clearCartBtn = document.getElementById('clearCartBtn');
         const cartFilterBtn = document.getElementById('cartFilterBtn');
         const cartFilterCount = document.getElementById('cartFilterCount');
@@ -976,6 +1019,7 @@
         });
 
         sendOrderBtn.addEventListener('click', handleTikTokOrder);
+        sendViberBtn.addEventListener('click', handleViberOrder);
 
         // Core Functions
         function renderMenu() {
@@ -1123,9 +1167,8 @@
             modalTotalPrice.textContent = totalPrice;
         }
 
-        function handleTikTokOrder() {
+        function buildOrderString() {
             const allItems = getAllItemsFlat();
-
             let orderDetails = `👋 Здравствуйте, Юлия! Хочу сделать заказ полуфабрикатов:\n\n`;
             let total = 0;
 
@@ -1139,8 +1182,26 @@
             });
 
             orderDetails += `\n💰 Итоговая сумма: ${total} руб.`;
+            return orderDetails;
+        }
 
-            navigator.clipboard.writeText(orderDetails).then(() => {
+        function handleViberOrder() {
+            const orderText = buildOrderString();
+            
+            navigator.clipboard.writeText(orderText).then(() => {
+                showToast('Заказ скопирован! Переходим в Viber...');
+                setTimeout(() => {
+                    window.location.href = 'viber://chat?number=%2B375296372405';
+                }, 1000);
+            }).catch(() => {
+                window.location.href = 'viber://chat?number=%2B375296372405';
+            });
+        }
+
+        function handleTikTokOrder() {
+            const orderText = buildOrderString();
+
+            navigator.clipboard.writeText(orderText).then(() => {
                 showToast('Детали заказа скопированы! Переходим в TikTok...');
                 setTimeout(() => {
                     window.open('https://www.tiktok.com/@juliakirichenko2', '_blank');
